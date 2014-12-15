@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<thing:thing-descriptions bindingId="helios"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:thing="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0"
+	xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
+
+	<thing-type id="ipvario27">
+		<label>Helios IP Vario</label>
+		<description>Helios IP Vario Door Station / Intercom with Firmware v2.7</description>
+
+		<channels>
+			<channel id="keypressed" typeId="keypressed" />
+			<channel id="keypressedstamp" typeId="timestamp" />
+			<channel id="callstate" typeId="callstate" />
+			<channel id="calldirection" typeId="calldirection" />
+			<channel id="callstatestamp" typeId="timestamp" />
+			<channel id="card" typeId="card" />
+			<channel id="cardvalid" typeId="cardvalid" />
+			<channel id="cardstamp" typeId="timestamp" />
+			<channel id="code" typeId="code" />
+			<channel id="codevalid" typeId="codevalid" />
+			<channel id="codestamp" typeId="timestamp" />
+			<channel id="devicestate" typeId="devicestate" />
+			<channel id="devicestatestamp" typeId="timestamp" />
+		</channels>
+		        
+        <config-description>
+            <parameter name="ipAddress" type="text" required="true">
+                <label>Network Address</label>
+                <description>Network address of the Helios IP device</description>
+            </parameter>
+            <parameter name="openHABipAddress" type="text"  required="true">
+                <label>Network Address</label>
+                <description>Network address of the openHAB host</description>
+            </parameter>
+            <parameter name="openHABportNumber" type="integer"  required="true">
+                <label>Port Number</label>
+                <description>TCP port number the notification web service will be registered on</description>
+            </parameter>       
+        </config-description>
+		
+	</thing-type>
+
+	<channel-type id="timestamp">
+		<item-type>DateTime</item-type>
+		<label>Time Stamp</label>
+		<description>Event date and time in CCYY-MM-DDThh:mm:ss format</description>
+	</channel-type>
+	<channel-type id="keypressed">
+		<item-type>String</item-type>
+		<label>Key Pressed</label>
+		<description>Code of the key pressed</description>
+	</channel-type>
+	<channel-type id="callstate">
+		<item-type>String</item-type>
+		<label>Call State</label>
+		<description>State of the currently made call</description>
+	</channel-type>
+	<channel-type id="calldirection">
+		<item-type>String</item-type>
+		<label>Call Direction</label>
+		<description>Direction of the currently made call</description>
+	</channel-type>	
+	<channel-type id="card">
+		<item-type>String</item-type>
+		<label>Card ID</label>
+		<description>Detected card identification with a 24-64-bit number in the hexadecimal format</description>
+	</channel-type>		
+	<channel-type id="cardvalid">
+		<item-type>String</item-type>
+		<label>Card Valid Flag</label>
+		<description>If the detected card is valid, the parameter value is true. If not, the parameter is set to false</description>
+	</channel-type>		
+	<channel-type id="code">
+		<item-type>String</item-type>
+		<label>Code Entered</label>
+		<description>Numerical code entered, e.g. 1234.</description>
+	</channel-type>		
+	<channel-type id="codevalid">
+		<item-type>String</item-type>
+		<label>Code Valid Flag</label>
+		<description>If the entered code is valid, the parameter value is true. If not, the parameter is set to false</description>
+	</channel-type>		
+	<channel-type id="devicestate">
+		<item-type>String</item-type>
+		<label>Device State</label>
+		<description>State of the Helios device</description>
+	</channel-type>
+		
+	</thing:thing-descriptions>
