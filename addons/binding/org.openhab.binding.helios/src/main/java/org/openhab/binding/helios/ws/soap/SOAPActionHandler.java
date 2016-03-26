@@ -15,39 +15,37 @@ import javax.xml.ws.handler.MessageContext;
 import javax.xml.ws.handler.soap.SOAPHandler;
 import javax.xml.ws.handler.soap.SOAPMessageContext;
 
-import org.openhab.binding.helios.internal.HeliosHandlerFactory;
-
 /**
  * The {@link SOAPActionHandler} is a custom SOAP handler that modifies some SOAP
  * headers in order to get the Helios comm. working
- * 
+ *
  * @author Karel Goderis - Initial contribution
  */
 public class SOAPActionHandler implements SOAPHandler<SOAPMessageContext> {
-	@Override
-	public boolean handleMessage(SOAPMessageContext context) {
-		// Nothing to do here
-		return true;
-	}
+    @Override
+    public boolean handleMessage(SOAPMessageContext context) {
+        // Nothing to do here
+        return true;
+    }
 
-	@Override
-	public boolean handleFault(SOAPMessageContext context) {
-		// Nothing to do here
-		return false;
-	}
+    @Override
+    public boolean handleFault(SOAPMessageContext context) {
+        // Nothing to do here
+        return false;
+    }
 
-	@Override
-	public void close(MessageContext context) {
-		// Nothing to do here
-	}
+    @Override
+    public void close(MessageContext context) {
+        // Nothing to do here
+    }
 
-	@Override
-	public Set<QName> getHeaders() {
-		Set<QName> set = new HashSet<QName>();
-		// Make sure the '[{http://www.w3.org/2005/08/addressing}]Action' header
-		// is handled in case the device set the 'MustUnderstand' attribute to
-		// '1'
-		set.add(new QName("http://www.w3.org/2005/08/addressing", "Action"));
-		return set;
-	}
+    @Override
+    public Set<QName> getHeaders() {
+        Set<QName> set = new HashSet<QName>();
+        // Make sure the '[{http://www.w3.org/2005/08/addressing}]Action' header
+        // is handled in case the device set the 'MustUnderstand' attribute to
+        // '1'
+        set.add(new QName("http://www.w3.org/2005/08/addressing", "Action"));
+        return set;
+    }
 }
