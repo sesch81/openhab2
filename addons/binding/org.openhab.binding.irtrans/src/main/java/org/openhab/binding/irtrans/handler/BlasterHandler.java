@@ -91,8 +91,7 @@ public class BlasterHandler extends BaseThingHandler implements TransceiverStatu
 
         if (command.matches(thingCompatibleCommand)) {
             StringType stringType = new StringType(command.remote + "," + command.command);
-            updateState(new ChannelUID(getThing().getThingTypeUID(), getThing().getUID().getId(), CHANNEL_IO),
-                    stringType);
+            updateState(new ChannelUID(getThing().getUID(), CHANNEL_IO), stringType);
         }
 
     }
