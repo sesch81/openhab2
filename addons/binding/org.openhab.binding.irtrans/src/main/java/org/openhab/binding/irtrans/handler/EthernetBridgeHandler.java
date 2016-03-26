@@ -41,7 +41,6 @@ import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.ThingStatus;
 import org.eclipse.smarthome.core.thing.binding.BaseBridgeHandler;
 import org.eclipse.smarthome.core.types.Command;
-import org.eclipse.smarthome.core.types.State;
 import org.openhab.binding.irtrans.IRcommand;
 import org.openhab.binding.irtrans.IRtransBindingConstants;
 import org.openhab.binding.irtrans.IRtransBindingConstants.Led;
@@ -140,42 +139,42 @@ public class EthernetBridgeHandler extends BaseBridgeHandler implements Transcei
         }
     }
 
-    @Override
-    public void handleUpdate(ChannelUID channelUID, State newState) {
-        if (channelUID != null) {
-            Channel channel = this.getThing().getChannel(channelUID.getId());
-            if (channel != null) {
-                Configuration channelConfiguration = channel.getConfiguration();
-                if (channelUID.getThingTypeId().equals(IRtransBindingConstants.BLASTER_CHANNEL_TYPE)) {
-                    if (newState instanceof StringType) {
-                        String remoteName = StringUtils.substringBefore(newState.toString(), ",");
-                        String irCommandName = StringUtils.substringAfter(newState.toString(), ",");
-
-                        IRcommand ircommand = new IRcommand();
-                        ircommand.remote = remoteName;
-                        ircommand.command = irCommandName;
-
-                        IRcommand thingCompatibleCommand = new IRcommand();
-                        thingCompatibleCommand.remote = (String) channelConfiguration.get(REMOTE);
-                        thingCompatibleCommand.command = (String) channelConfiguration.get(COMMAND);
-
-                        if (sendIRcommand(ircommand, Led.get((String) channelConfiguration.get(LED)))) {
-                            logger.debug("Sent a matching infrared command '{}' for channel '{}'", newState.toString(),
-                                    channelUID);
-                        } else {
-                            logger.warn("An error occured whilst sending the infrared command '{}' for Channel '{}'",
-                                    newState.toString(), channelUID);
-                        }
-
-                    }
-                }
-
-                if (channelUID.getThingTypeId().equals(IRtransBindingConstants.RECEIVER_CHANNEL_TYPE)) {
-                    logger.info("Receivers can only receive infrared commands, not send them");
-                }
-            }
-        }
-    }
+    // @Override
+    // public void handleUpdate(ChannelUID channelUID, State newState) {
+    // if (channelUID != null) {
+    // Channel channel = this.getThing().getChannel(channelUID.getId());
+    // if (channel != null) {
+    // Configuration channelConfiguration = channel.getConfiguration();
+    // if (channelUID.getThingTypeId().equals(IRtransBindingConstants.BLASTER_CHANNEL_TYPE)) {
+    // if (newState instanceof StringType) {
+    // String remoteName = StringUtils.substringBefore(newState.toString(), ",");
+    // String irCommandName = StringUtils.substringAfter(newState.toString(), ",");
+    //
+    // IRcommand ircommand = new IRcommand();
+    // ircommand.remote = remoteName;
+    // ircommand.command = irCommandName;
+    //
+    // IRcommand thingCompatibleCommand = new IRcommand();
+    // thingCompatibleCommand.remote = (String) channelConfiguration.get(REMOTE);
+    // thingCompatibleCommand.command = (String) channelConfiguration.get(COMMAND);
+    //
+    // if (sendIRcommand(ircommand, Led.get((String) channelConfiguration.get(LED)))) {
+    // logger.debug("Sent a matching infrared command '{}' for channel '{}'", newState.toString(),
+    // channelUID);
+    // } else {
+    // logger.warn("An error occured whilst sending the infrared command '{}' for Channel '{}'",
+    // newState.toString(), channelUID);
+    // }
+    //
+    // }
+    // }
+    //
+    // if (channelUID.getThingTypeId().equals(IRtransBindingConstants.RECEIVER_CHANNEL_TYPE)) {
+    // logger.info("Receivers can only receive infrared commands, not send them");
+    // }
+    // }
+    // }
+    // }
 
     @Override
     public void initialize() {
