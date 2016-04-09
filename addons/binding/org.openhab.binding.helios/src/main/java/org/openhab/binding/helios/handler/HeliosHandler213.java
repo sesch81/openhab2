@@ -233,68 +233,15 @@ public class HeliosHandler213 extends BaseThingHandler {
             }
 
             if (jsonObject.get("success").toString().equals("true")) {
-                RESTSystemInfo systemInfo = gson.fromJson(jsonObject.get("result").toString(), RESTSystemInfo.class);
 
-                Map<String, String> properties = editProperties();
-                properties.put(VARIANT, systemInfo.variant);
-                properties.put(SERIAL_NUMBER, systemInfo.serialNumber);
-                properties.put(HW_VERSION, systemInfo.hwVersion);
-                properties.put(SW_VERSION, systemInfo.swVersion);
-                properties.put(BUILD_TYPE, systemInfo.buildType);
-                properties.put(DEVICE_NAME, systemInfo.deviceName);
-                updateProperties(properties);
+                scheduler.schedule(configureRunnable, 0, TimeUnit.SECONDS);
 
                 if (logJob == null || logJob.isCancelled()) {
                     logJob = scheduler.schedule(logRunnable, 1, TimeUnit.SECONDS);
                 }
+
+                updateStatus(ThingStatus.ONLINE);
             }
-
-            List<RESTSwitch> switches = getSwitches();
-
-            if (switches != null) {
-                for (RESTSwitch aSwitch : switches) {
-                    if (aSwitch.enabled.equals("true")) {
-                        logger.debug("Adding a channel to the Helios IP Vario '{}' for the switch with id '{}'",
-                                getThing().getUID().toString(), aSwitch.id);
-                        ThingBuilder thingBuilder = editThing();
-                        ChannelTypeUID enablerUID = new ChannelTypeUID(BINDING_ID, SWITCH_ENABLER);
-                        ChannelTypeUID triggerUID = new ChannelTypeUID(BINDING_ID, SWITCH_TRIGGER);
-
-                        Channel channel = ChannelBuilder
-                                .create(new ChannelUID(getThing().getUID(), "switch" + aSwitch.id + "active"), "Switch")
-                                .withType(enablerUID).build();
-                        thingBuilder.withChannel(channel);
-                        channel = ChannelBuilder
-                                .create(new ChannelUID(getThing().getUID(), "switch" + aSwitch.id), "Switch")
-                                .withType(triggerUID).build();
-                        thingBuilder.withChannel(channel);
-                        updateThing(thingBuilder.build());
-
-                    }
-                }
-            }
-
-            List<RESTPort> ports = getPorts();
-
-            if (ports != null) {
-                for (RESTPort aPort : ports) {
-                    logger.debug("Adding a channel to the Helios IP Vario '{}' for the IO port with id '{}'",
-                            getThing().getUID().toString(), aPort.port);
-                    ThingBuilder thingBuilder = editThing();
-                    ChannelTypeUID triggerUID = new ChannelTypeUID(BINDING_ID, IO_TRIGGER);
-
-                    Map<String, String> channelProperties = new HashMap<String, String>();
-                    channelProperties.put("type", aPort.type);
-
-                    Channel channel = ChannelBuilder
-                            .create(new ChannelUID(getThing().getUID(), "io" + aPort.port), "Switch")
-                            .withType(triggerUID).withProperties(channelProperties).build();
-                    thingBuilder.withChannel(channel);
-                    updateThing(thingBuilder.build());
-                }
-            }
-
-            updateStatus(ThingStatus.ONLINE);
 
         }
     }
@@ -690,6 +637,89 @@ public class HeliosHandler213 extends BaseThingHandler {
 
         return null;
     }
+
+    protected Runnable configureRunnable = new Runnable() {
+
+        @Override
+        public void run() {
+
+            logger.debug("Fetching the configuring of the Helios IP Vario '{}' ", getThing().getUID().toString());
+
+            Response response = null;
+            try {
+                response = systemTarget.resolveTemplate("ip", ipAddress).resolveTemplate("cmd", INFO)
+                        .request(MediaType.APPLICATION_JSON_TYPE).get();
+            } catch (Exception e) {
+                logger.error("An exception occurred while fetching system info of the Helios IP Vario '{}'",
+                        getThing().getUID().toString());
+                updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR);
+                scheduler.schedule(resetRunnable, RESET_INTERVAL, TimeUnit.SECONDS);
+                return;
+            }
+
+            if (response != null) {
+                JsonObject jsonObject = parser.parse(response.readEntity(String.class)).getAsJsonObject();
+
+                RESTSystemInfo systemInfo = gson.fromJson(jsonObject.get("result").toString(), RESTSystemInfo.class);
+
+                Map<String, String> properties = editProperties();
+                properties.put(VARIANT, systemInfo.variant);
+                properties.put(SERIAL_NUMBER, systemInfo.serialNumber);
+                properties.put(HW_VERSION, systemInfo.hwVersion);
+                properties.put(SW_VERSION, systemInfo.swVersion);
+                properties.put(BUILD_TYPE, systemInfo.buildType);
+                properties.put(DEVICE_NAME, systemInfo.deviceName);
+                updateProperties(properties);
+            }
+
+            List<RESTSwitch> switches = getSwitches();
+
+            if (switches != null) {
+                for (RESTSwitch aSwitch : switches) {
+                    if (aSwitch.enabled.equals("true")) {
+                        logger.debug("Adding a channel to the Helios IP Vario '{}' for the switch with id '{}'",
+                                getThing().getUID().toString(), aSwitch.id);
+                        ThingBuilder thingBuilder = editThing();
+                        ChannelTypeUID enablerUID = new ChannelTypeUID(BINDING_ID, SWITCH_ENABLER);
+                        ChannelTypeUID triggerUID = new ChannelTypeUID(BINDING_ID, SWITCH_TRIGGER);
+
+                        Channel channel = ChannelBuilder
+                                .create(new ChannelUID(getThing().getUID(), "switch" + aSwitch.id + "active"), "Switch")
+                                .withType(enablerUID).build();
+                        thingBuilder.withChannel(channel);
+                        channel = ChannelBuilder
+                                .create(new ChannelUID(getThing().getUID(), "switch" + aSwitch.id), "Switch")
+                                .withType(triggerUID).build();
+                        thingBuilder.withChannel(channel);
+                        updateThing(thingBuilder.build());
+
+                    }
+                }
+            }
+
+            List<RESTPort> ports = getPorts();
+
+            if (ports != null) {
+                for (RESTPort aPort : ports) {
+                    logger.debug("Adding a channel to the Helios IP Vario '{}' for the IO port with id '{}'",
+                            getThing().getUID().toString(), aPort.port);
+                    ThingBuilder thingBuilder = editThing();
+                    ChannelTypeUID triggerUID = new ChannelTypeUID(BINDING_ID, IO_TRIGGER);
+
+                    Map<String, String> channelProperties = new HashMap<String, String>();
+                    channelProperties.put("type", aPort.type);
+
+                    Channel channel = ChannelBuilder
+                            .create(new ChannelUID(getThing().getUID(), "io" + aPort.port), "Switch")
+                            .withType(triggerUID).withProperties(channelProperties).build();
+                    thingBuilder.withChannel(channel);
+                    updateThing(thingBuilder.build());
+                }
+            }
+
+        }
+
+    };
 
     protected Runnable resetRunnable = new Runnable() {
 
