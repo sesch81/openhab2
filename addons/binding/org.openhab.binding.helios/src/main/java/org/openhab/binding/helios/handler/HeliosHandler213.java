@@ -643,7 +643,7 @@ public class HeliosHandler213 extends BaseThingHandler {
         @Override
         public void run() {
 
-            logger.debug("Fetching the configuring of the Helios IP Vario '{}' ", getThing().getUID().toString());
+            logger.debug("Fetching the configuration of the Helios IP Vario '{}' ", getThing().getUID().toString());
 
             Response response = null;
             try {
