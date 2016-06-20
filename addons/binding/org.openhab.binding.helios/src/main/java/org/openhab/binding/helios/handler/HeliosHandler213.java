@@ -50,6 +50,7 @@ import org.eclipse.smarthome.core.thing.binding.builder.ChannelBuilder;
 import org.eclipse.smarthome.core.thing.binding.builder.ThingBuilder;
 import org.eclipse.smarthome.core.thing.type.ChannelTypeUID;
 import org.eclipse.smarthome.core.types.Command;
+import org.eclipse.smarthome.core.types.RefreshType;
 import org.eclipse.smarthome.core.types.UnDefType;
 import org.openhab.binding.helios.ws.rest.RESTError;
 import org.openhab.binding.helios.ws.rest.RESTEvent;
@@ -139,22 +140,27 @@ public class HeliosHandler213 extends BaseThingHandler {
     @Override
     public void handleCommand(ChannelUID channelUID, Command command) {
 
-        ChannelTypeUID triggerUID = new ChannelTypeUID(BINDING_ID, SWITCH_TRIGGER);
-        ChannelTypeUID enablerUID = new ChannelTypeUID(BINDING_ID, SWITCH_ENABLER);
+        if (command instanceof RefreshType) {
+            // Placeholder for future refinement
+        } else {
 
-        ChannelTypeUID channelType = getThing().getChannel(channelUID.getId()).getChannelTypeUID();
+            ChannelTypeUID triggerUID = new ChannelTypeUID(BINDING_ID, SWITCH_TRIGGER);
+            ChannelTypeUID enablerUID = new ChannelTypeUID(BINDING_ID, SWITCH_ENABLER);
 
-        if (channelType.equals(triggerUID)) {
-            String switchID = channelUID.getId().substring(6);
-            triggerSwitch(switchID);
-        }
+            ChannelTypeUID channelType = getThing().getChannel(channelUID.getId()).getChannelTypeUID();
 
-        if (channelType.equals(enablerUID)) {
-            String switchID = channelUID.getId().substring(6, channelUID.getId().lastIndexOf("active"));
-            if (command instanceof OnOffType && command == OnOffType.OFF) {
-                enableSwitch(switchID, false);
-            } else if (command instanceof OnOffType && command == OnOffType.ON) {
-                enableSwitch(switchID, true);
+            if (channelType.equals(triggerUID)) {
+                String switchID = channelUID.getId().substring(6);
+                triggerSwitch(switchID);
+            }
+
+            if (channelType.equals(enablerUID)) {
+                String switchID = channelUID.getId().substring(6, channelUID.getId().lastIndexOf("active"));
+                if (command instanceof OnOffType && command == OnOffType.OFF) {
+                    enableSwitch(switchID, false);
+                } else if (command instanceof OnOffType && command == OnOffType.ON) {
+                    enableSwitch(switchID, true);
+                }
             }
         }
     }

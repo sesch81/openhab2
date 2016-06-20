@@ -42,6 +42,7 @@ import org.eclipse.smarthome.core.thing.ThingStatus;
 import org.eclipse.smarthome.core.thing.ThingStatusDetail;
 import org.eclipse.smarthome.core.thing.binding.BaseThingHandler;
 import org.eclipse.smarthome.core.types.Command;
+import org.eclipse.smarthome.core.types.RefreshType;
 import org.oasis_open.docs.wsn.b_2.FilterType;
 import org.oasis_open.docs.wsn.b_2.Notify;
 import org.oasis_open.docs.wsn.b_2.Renew;
@@ -127,11 +128,15 @@ public class HeliosHandler27 extends BaseThingHandler implements NotificationCon
 
     @Override
     public void handleCommand(ChannelUID channelUID, Command command) {
-        // 2N.cz has not yet released the automation part of the Helios IP
-        // HTTP/SOAP based API
-        // Only the notification part has been documented, so for now there is
-        // nothing to do here
-        logger.warn("The Helios IP is a read-only device and can not handle commands");
+        if (command instanceof RefreshType) {
+            // Placeholder for future refinement
+        } else {
+            // 2N.cz has not yet released the automation part of the Helios IP
+            // HTTP/SOAP based API
+            // Only the notification part has been documented, so for now there is
+            // nothing to do here
+            logger.warn("The Helios IP is a read-only device and can not handle commands");
+        }
     }
 
     public String getSubscriptionID() {
@@ -148,8 +153,7 @@ public class HeliosHandler27 extends BaseThingHandler implements NotificationCon
 
         try {
             context = JAXBContext.newInstance(SOAPObjectFactory.class, SOAPEvent.class, SOAPKeyPressed.class,
-                    SOAPCallStateChanged.class, SOAPCodeEntered.class, SOAPCardEntered.class,
-                    SOAPDeviceState.class);
+                    SOAPCallStateChanged.class, SOAPCodeEntered.class, SOAPCardEntered.class, SOAPDeviceState.class);
         } catch (JAXBException e) {
             logger.error("An exception occurred while setting up the JAXB Context factory: {}", e.getMessage());
             e.printStackTrace();
