@@ -41,6 +41,7 @@ import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.ThingStatus;
 import org.eclipse.smarthome.core.thing.binding.BaseBridgeHandler;
 import org.eclipse.smarthome.core.types.Command;
+import org.eclipse.smarthome.core.types.RefreshType;
 import org.openhab.binding.irtrans.IRcommand;
 import org.openhab.binding.irtrans.IRtransBindingConstants;
 import org.openhab.binding.irtrans.IRtransBindingConstants.Led;
@@ -101,39 +102,44 @@ public class EthernetBridgeHandler extends BaseBridgeHandler implements Transcei
 
     @Override
     public void handleCommand(ChannelUID channelUID, Command command) {
-        if (channelUID != null) {
-            Channel channel = this.getThing().getChannel(channelUID.getId());
-            if (channel != null) {
-                Configuration channelConfiguration = channel.getConfiguration();
-                if (channel.getAcceptedItemType().equals(IRtransBindingConstants.BLASTER_CHANNEL_TYPE)) {
-                    if (command instanceof StringType) {
-                        String remoteName = StringUtils.substringBefore(command.toString(), ",");
-                        String irCommandName = StringUtils.substringAfter(command.toString(), ",");
 
-                        IRcommand ircommand = new IRcommand();
-                        ircommand.remote = remoteName;
-                        ircommand.command = irCommandName;
+        if (command instanceof RefreshType) {
+            // Placeholder for future refinement
+        } else {
+            if (channelUID != null) {
+                Channel channel = this.getThing().getChannel(channelUID.getId());
+                if (channel != null) {
+                    Configuration channelConfiguration = channel.getConfiguration();
+                    if (channel.getAcceptedItemType().equals(IRtransBindingConstants.BLASTER_CHANNEL_TYPE)) {
+                        if (command instanceof StringType) {
+                            String remoteName = StringUtils.substringBefore(command.toString(), ",");
+                            String irCommandName = StringUtils.substringAfter(command.toString(), ",");
 
-                        IRcommand thingCompatibleCommand = new IRcommand();
-                        thingCompatibleCommand.remote = (String) channelConfiguration.get(REMOTE);
-                        thingCompatibleCommand.command = (String) channelConfiguration.get(COMMAND);
+                            IRcommand ircommand = new IRcommand();
+                            ircommand.remote = remoteName;
+                            ircommand.command = irCommandName;
 
-                        if (ircommand.matches(thingCompatibleCommand)) {
-                            if (sendIRcommand(ircommand, Led.get((String) channelConfiguration.get(LED)))) {
-                                logger.debug("Sent a matching infrared command '{}' for channel '{}'",
-                                        command.toString(), channelUID);
-                            } else {
-                                logger.warn(
-                                        "An error occured whilst sending the infrared command '{}' for Channel '{}'",
-                                        command.toString(), channelUID);
+                            IRcommand thingCompatibleCommand = new IRcommand();
+                            thingCompatibleCommand.remote = (String) channelConfiguration.get(REMOTE);
+                            thingCompatibleCommand.command = (String) channelConfiguration.get(COMMAND);
+
+                            if (ircommand.matches(thingCompatibleCommand)) {
+                                if (sendIRcommand(ircommand, Led.get((String) channelConfiguration.get(LED)))) {
+                                    logger.debug("Sent a matching infrared command '{}' for channel '{}'",
+                                            command.toString(), channelUID);
+                                } else {
+                                    logger.warn(
+                                            "An error occured whilst sending the infrared command '{}' for Channel '{}'",
+                                            command.toString(), channelUID);
+                                }
                             }
+
                         }
-
                     }
-                }
 
-                if (channel.getAcceptedItemType().equals(IRtransBindingConstants.RECEIVER_CHANNEL_TYPE)) {
-                    logger.info("Receivers can only receive infrared commands, not send them");
+                    if (channel.getAcceptedItemType().equals(IRtransBindingConstants.RECEIVER_CHANNEL_TYPE)) {
+                        logger.info("Receivers can only receive infrared commands, not send them");
+                    }
                 }
             }
         }

@@ -19,6 +19,7 @@ import org.eclipse.smarthome.core.thing.ThingStatusDetail;
 import org.eclipse.smarthome.core.thing.binding.BaseThingHandler;
 import org.eclipse.smarthome.core.thing.binding.ThingHandler;
 import org.eclipse.smarthome.core.types.Command;
+import org.eclipse.smarthome.core.types.RefreshType;
 import org.openhab.binding.irtrans.IRcommand;
 import org.openhab.binding.irtrans.IRtransBindingConstants.Led;
 import org.slf4j.Logger;
@@ -55,26 +56,30 @@ public class BlasterHandler extends BaseThingHandler implements TransceiverStatu
             return;
         }
 
-        if (channelUID.getId().equals(CHANNEL_IO)) {
-            if (command instanceof StringType) {
-                String remoteName = StringUtils.substringBefore(command.toString(), ",");
-                String irCommandName = StringUtils.substringAfter(command.toString(), ",");
+        if (command instanceof RefreshType) {
+            // Placeholder for future refinement
+        } else {
+            if (channelUID.getId().equals(CHANNEL_IO)) {
+                if (command instanceof StringType) {
+                    String remoteName = StringUtils.substringBefore(command.toString(), ",");
+                    String irCommandName = StringUtils.substringAfter(command.toString(), ",");
 
-                IRcommand ircommand = new IRcommand();
-                ircommand.remote = remoteName;
-                ircommand.command = irCommandName;
+                    IRcommand ircommand = new IRcommand();
+                    ircommand.remote = remoteName;
+                    ircommand.command = irCommandName;
 
-                IRcommand thingCompatibleCommand = new IRcommand();
-                thingCompatibleCommand.remote = (String) getConfig().get(REMOTE);
-                thingCompatibleCommand.command = (String) getConfig().get(COMMAND);
+                    IRcommand thingCompatibleCommand = new IRcommand();
+                    thingCompatibleCommand.remote = (String) getConfig().get(REMOTE);
+                    thingCompatibleCommand.command = (String) getConfig().get(COMMAND);
 
-                if (ircommand.matches(thingCompatibleCommand)) {
-                    if (!ethernetBridge.sendIRcommand(ircommand, Led.get((String) getConfig().get(LED)))) {
-                        logger.warn("An error occured whilst sending the infrared command '{}' for Channel '{}'",
-                                ircommand, channelUID);
+                    if (ircommand.matches(thingCompatibleCommand)) {
+                        if (!ethernetBridge.sendIRcommand(ircommand, Led.get((String) getConfig().get(LED)))) {
+                            logger.warn("An error occured whilst sending the infrared command '{}' for Channel '{}'",
+                                    ircommand, channelUID);
+                        }
                     }
-                }
 
+                }
             }
         }
     }
