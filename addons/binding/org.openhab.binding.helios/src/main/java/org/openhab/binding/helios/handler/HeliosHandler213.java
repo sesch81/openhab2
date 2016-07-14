@@ -319,6 +319,7 @@ public class HeliosHandler213 extends BaseThingHandler {
 
         if (heliosClient != null) {
             heliosClient.close();
+            heliosClient = null;
         }
     }
 
@@ -417,7 +418,7 @@ public class HeliosHandler213 extends BaseThingHandler {
     }
 
     private List<RESTEvent> pullLog(long logSubscriptionID) {
-        if (getThing().getStatus() == ThingStatus.ONLINE) {
+        if (getThing().getStatus() == ThingStatus.ONLINE && heliosClient != null) {
 
             logTarget = baseTarget.path(LOG_PATH);
 
