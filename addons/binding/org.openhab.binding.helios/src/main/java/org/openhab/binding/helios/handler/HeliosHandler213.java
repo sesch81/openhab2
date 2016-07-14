@@ -310,7 +310,7 @@ public class HeliosHandler213 extends BaseThingHandler {
             unsubscribe();
         }
 
-        updateStatus(ThingStatus.OFFLINE);
+        // updateStatus(ThingStatus.OFFLINE);
 
         if (logJob != null && !logJob.isCancelled()) {
             logJob.cancel(true);

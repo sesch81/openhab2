@@ -225,7 +225,7 @@ public class HeliosHandler27 extends BaseThingHandler implements NotificationCon
     public void dispose() {
         logger.debug("Disposing Helios IP handler.");
 
-        updateStatus(ThingStatus.OFFLINE);
+        // updateStatus(ThingStatus.OFFLINE);
 
         try {
             unsubscribe();
