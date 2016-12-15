@@ -177,7 +177,6 @@
                 <description>The group address in x/y/z notation to read the actual position of the dimmer</description>
                 <required>false</required>
             </parameter>
-
             <parameter name="increaseDecreaseGA" type="text">
                 <label>Address</label>
                 <description>The group address in x/y/z notation to increase or decrease the dimmer</description>

@@ -22,10 +22,10 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 import org.eclipse.smarthome.core.library.types.DecimalType;
+import org.eclipse.smarthome.core.thing.Bridge;
 import org.eclipse.smarthome.core.thing.ChannelUID;
-import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingStatus;
-import org.eclipse.smarthome.core.thing.binding.BaseThingHandler;
+import org.eclipse.smarthome.core.thing.binding.BaseBridgeHandler;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLinkRegistry;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.State;
@@ -73,7 +73,7 @@ import tuwien.auto.calimero.process.ProcessListenerEx;
  *
  * @author Kai Kreuzer / Karel Goderis - Initial contribution
  */
-public abstract class KNXBridgeBaseThingHandler extends BaseThingHandler {
+public abstract class KNXBridgeBaseThingHandler extends BaseBridgeHandler {
 
     public final static int ERROR_INTERVAL_MINUTES = 5;
 
@@ -82,7 +82,7 @@ public abstract class KNXBridgeBaseThingHandler extends BaseThingHandler {
     private Collection<GroupAddressListener> groupAddressListeners = new HashSet<GroupAddressListener>();
     private Collection<IndividualAddressListener> individualAddressListeners = new HashSet<IndividualAddressListener>();
     private Collection<KNXBusListener> knxBusListeners = new HashSet<KNXBusListener>();
-    static protected Collection<KNXTypeMapper> typeMappers = new HashSet<KNXTypeMapper>();
+    private Collection<KNXTypeMapper> typeMappers;
     private LinkedBlockingQueue<RetryDatapoint> readDatapoints = new LinkedBlockingQueue<RetryDatapoint>();
     protected ConcurrentHashMap<IndividualAddress, Destination> destinations = new ConcurrentHashMap<IndividualAddress, Destination>();
 
@@ -105,9 +105,11 @@ public abstract class KNXBridgeBaseThingHandler extends BaseThingHandler {
     private long errorsSinceStart;
     private long errorsSinceInterval;
 
-    public KNXBridgeBaseThingHandler(Thing thing, ItemChannelLinkRegistry itemChannelLinkRegistry) {
-        super(thing);
+    public KNXBridgeBaseThingHandler(Bridge bridge, ItemChannelLinkRegistry itemChannelLinkRegistry,
+            Collection<KNXTypeMapper> typeMappers) {
+        super(bridge);
         this.itemChannelLinkRegistry = itemChannelLinkRegistry;
+        this.typeMappers = typeMappers;
     }
 
     @Override

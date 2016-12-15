@@ -10,10 +10,12 @@ package org.openhab.binding.knx.handler;
 
 import static org.openhab.binding.knx.KNXBindingConstants.SERIAL_PORT;
 
+import java.util.Collection;
 import java.util.Enumeration;
 
-import org.eclipse.smarthome.core.thing.Thing;
+import org.eclipse.smarthome.core.thing.Bridge;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLinkRegistry;
+import org.openhab.binding.knx.internal.dpt.KNXTypeMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,13 +37,9 @@ public class SerialBridgeThingHandler extends KNXBridgeBaseThingHandler {
 
     private final Logger logger = LoggerFactory.getLogger(SerialBridgeThingHandler.class);
 
-    public SerialBridgeThingHandler(Thing thing, ItemChannelLinkRegistry itemChannelLinkRegistry) {
-        super(thing, itemChannelLinkRegistry);
-    }
-
-    public SerialBridgeThingHandler() {
-        // Default constructor required in order to have OSGi Declarative Services working
-        super(null, null);
+    public SerialBridgeThingHandler(Bridge bridge, ItemChannelLinkRegistry itemChannelLinkRegistry,
+            Collection<KNXTypeMapper> typeMappers) {
+        super(bridge, itemChannelLinkRegistry, typeMappers);
     }
 
     @Override

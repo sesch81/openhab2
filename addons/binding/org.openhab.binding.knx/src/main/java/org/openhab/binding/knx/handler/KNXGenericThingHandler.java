@@ -158,6 +158,8 @@ public class KNXGenericThingHandler extends BaseThingHandler
                 logger.warn("The Channel Type {} is not implemented", channel.getChannelTypeUID().getId());
             }
         }
+
+        scheduleReadJobs();
     }
 
     @Override
@@ -216,6 +218,32 @@ public class KNXGenericThingHandler extends BaseThingHandler
         }
     }
 
+    private void scheduleReadJobs() {
+        for (Channel channel : getThing().getChannels()) {
+            Configuration channelConfiguration = channel.getConfiguration();
+            Boolean mustRead = (Boolean) channelConfiguration.get(READ);
+            BigDecimal readInterval = (BigDecimal) channelConfiguration.get(INTERVAL);
+
+            KNXChannelSelector selector = KNXChannelSelector
+                    .getValueSelectorFromChannelTypeId(channel.getChannelTypeUID().getId());
+
+            if (selector != null) {
+                try {
+                    for (GroupAddress address : knxChannelSelectorProxy.getReadAddresses(selector, channelConfiguration,
+                            null)) {
+                        scheduleReadJob(address,
+                                knxChannelSelectorProxy.getDPT(address, selector, channelConfiguration, null), mustRead,
+                                readInterval);
+                    }
+                } catch (KNXFormatException e) {
+                    logger.error("An exception occurred while scheduling a read job : '{}'", e.getMessage());
+                }
+            } else {
+                logger.warn("The Channel Type {} is not implemented", channel.getChannelTypeUID().getId());
+            }
+        }
+    }
+
     private void scheduleReadJob(GroupAddress groupAddress, String dpt, boolean mustRead, BigDecimal readInterval) {
 
         ReadRunnable readRunnable = null;
@@ -237,37 +265,14 @@ public class KNXGenericThingHandler extends BaseThingHandler
     public void bridgeStatusChanged(ThingStatusInfo bridgeStatusInfo) {
         super.bridgeStatusChanged(bridgeStatusInfo);
 
-        if (getThing().getStatus() == ThingStatus.ONLINE
-                && getThing().getStatusInfo().getStatusDetail() == ThingStatusDetail.NONE) {
+        if (bridgeStatusInfo.getStatus() == ThingStatus.ONLINE) {
             ((KNXBridgeBaseThingHandler) getBridge().getHandler()).registerGroupAddressListener(this);
-
-            for (Channel channel : getThing().getChannels()) {
-                Configuration channelConfiguration = channel.getConfiguration();
-                Boolean mustRead = (Boolean) channelConfiguration.get(READ);
-                BigDecimal readInterval = (BigDecimal) channelConfiguration.get(INTERVAL);
-
-                KNXChannelSelector selector = KNXChannelSelector
-                        .getValueSelectorFromChannelTypeId(channel.getChannelTypeUID().getId());
-
-                if (selector != null) {
-                    try {
-                        for (GroupAddress address : knxChannelSelectorProxy.getReadAddresses(selector,
-                                channelConfiguration, null)) {
-                            scheduleReadJob(address,
-                                    knxChannelSelectorProxy.getDPT(address, selector, channelConfiguration, null),
-                                    mustRead, readInterval);
-                        }
-                    } catch (KNXFormatException e) {
-                        logger.error("An exception occurred while scheduling a read job : '{}'", e.getMessage());
-                    }
-                } else {
-                    logger.warn("The Channel Type {} is not implemented", channel.getChannelTypeUID().getId());
-                }
-            }
-        } else if (getThing().getStatus() == ThingStatus.OFFLINE
-                && getThing().getStatusInfo().getStatusDetail() == ThingStatusDetail.BRIDGE_OFFLINE) {
-            ((KNXBridgeBaseThingHandler) getBridge().getHandler()).unregisterGroupAddressListener(this);
+            scheduleReadJobs();
+            updateStatus(ThingStatus.ONLINE, ThingStatusDetail.NONE);
+        } else if (bridgeStatusInfo.getStatus() == ThingStatus.OFFLINE) {
             cancelReadFutures();
+            ((KNXBridgeBaseThingHandler) getBridge().getHandler()).unregisterGroupAddressListener(this);
+            updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.BRIDGE_OFFLINE);
         }
     }
 
@@ -534,7 +539,7 @@ public class KNXGenericThingHandler extends BaseThingHandler
             } catch (Exception e) {
                 logger.error(
                         "An exception occurred while reading the group address '{}' with DPT '{}' for Thing '{}' : {}",
-                        address, dpt, getThing().getUID(), e);
+                        address, dpt, getThing().getUID(), e.getMessage(), e);
             }
         }
     };

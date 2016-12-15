@@ -14,11 +14,13 @@ import java.math.BigDecimal;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
+import java.util.Collection;
 
 import org.apache.commons.lang.StringUtils;
-import org.eclipse.smarthome.core.thing.Thing;
+import org.eclipse.smarthome.core.thing.Bridge;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLinkRegistry;
 import org.openhab.binding.knx.KNXBindingConstants;
+import org.openhab.binding.knx.internal.dpt.KNXTypeMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,13 +50,9 @@ public class IPBridgeThingHandler extends KNXBridgeBaseThingHandler {
     // the group address used within the KNX bus
     private String localsource;
 
-    public IPBridgeThingHandler(Thing thing, ItemChannelLinkRegistry itemChannelLinkRegistry) {
-        super(thing, itemChannelLinkRegistry);
-    }
-
-    public IPBridgeThingHandler() {
-        // Default constructor required in order to have OSGi Declarative Services working
-        super(null, null);
+    public IPBridgeThingHandler(Bridge bridge, ItemChannelLinkRegistry itemChannelLinkRegistry,
+            Collection<KNXTypeMapper> typeMappers) {
+        super(bridge, itemChannelLinkRegistry, typeMappers);
     }
 
     @Override

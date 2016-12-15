@@ -12,6 +12,7 @@ import static org.openhab.binding.knx.KNXBindingConstants.*;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Map;
 import java.util.Set;
@@ -19,6 +20,7 @@ import java.util.Set;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.config.discovery.DiscoveryService;
 import org.eclipse.smarthome.core.autoupdate.AutoUpdateBindingConfigProvider;
+import org.eclipse.smarthome.core.thing.Bridge;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
@@ -31,6 +33,7 @@ import org.openhab.binding.knx.handler.IPBridgeThingHandler;
 import org.openhab.binding.knx.handler.KNXBridgeBaseThingHandler;
 import org.openhab.binding.knx.handler.KNXGenericThingHandler;
 import org.openhab.binding.knx.handler.SerialBridgeThingHandler;
+import org.openhab.binding.knx.internal.dpt.KNXTypeMapper;
 import org.osgi.framework.ServiceRegistration;
 
 import com.google.common.collect.Lists;
@@ -47,7 +50,9 @@ public class KNXHandlerFactory extends BaseThingHandlerFactory implements AutoUp
             THING_TYPE_IP_BRIDGE, THING_TYPE_SERIAL_BRIDGE);
 
     private Map<ThingUID, ServiceRegistration<?>> discoveryServiceRegs = new HashMap<>();
-    protected ItemChannelLinkRegistry itemChannelLinkRegistry;
+    private ItemChannelLinkRegistry itemChannelLinkRegistry;
+    private Collection<KNXTypeMapper> typeMappers = new HashSet<KNXTypeMapper>();
+    private Collection<KNXBridgeBaseThingHandler> bridges = new HashSet<KNXBridgeBaseThingHandler>();
 
     protected void setItemChannelLinkRegistry(ItemChannelLinkRegistry registry) {
         itemChannelLinkRegistry = registry;
@@ -55,6 +60,20 @@ public class KNXHandlerFactory extends BaseThingHandlerFactory implements AutoUp
 
     protected void unsetItemChannelLinkRegistry(ItemChannelLinkRegistry registry) {
         itemChannelLinkRegistry = null;
+    }
+
+    public void addKNXTypeMapper(KNXTypeMapper typeMapper) {
+        typeMappers.add(typeMapper);
+        for (KNXBridgeBaseThingHandler aBridge : bridges) {
+            aBridge.addKNXTypeMapper(typeMapper);
+        }
+    }
+
+    public void removeKNXTypeMapper(KNXTypeMapper typeMapper) {
+        typeMappers.remove(typeMapper);
+        for (KNXBridgeBaseThingHandler aBridge : bridges) {
+            aBridge.removeKNXTypeMapper(typeMapper);
+        }
     }
 
     @Override
@@ -83,11 +102,13 @@ public class KNXHandlerFactory extends BaseThingHandlerFactory implements AutoUp
     @Override
     protected ThingHandler createHandler(Thing thing) {
         if (thing.getThingTypeUID().equals(THING_TYPE_IP_BRIDGE)) {
-            IPBridgeThingHandler handler = new IPBridgeThingHandler(thing, itemChannelLinkRegistry);
+            IPBridgeThingHandler handler = new IPBridgeThingHandler((Bridge) thing, itemChannelLinkRegistry,
+                    typeMappers);
             registerIndividualAddressDiscoveryService(handler);
             return handler;
         } else if (thing.getThingTypeUID().equals(THING_TYPE_SERIAL_BRIDGE)) {
-            SerialBridgeThingHandler handler = new SerialBridgeThingHandler(thing, itemChannelLinkRegistry);
+            SerialBridgeThingHandler handler = new SerialBridgeThingHandler((Bridge) thing, itemChannelLinkRegistry,
+                    typeMappers);
             registerIndividualAddressDiscoveryService(handler);
             return handler;
         } else if (thing.getThingTypeUID().equals(THING_TYPE_GENERIC)) {
