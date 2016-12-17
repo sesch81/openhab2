@@ -40,6 +40,7 @@ public class KNXBindingConstants {
     public final static String CHANNEL_CURRENT = "current";
     public final static String CHANNEL_DIMMER = "dimmer";
     public final static String CHANNEL_ENERGY = "energy";
+    public final static String CHANNEL_GENERIC = "generic";
     public final static String CHANNEL_OPERATING_HOURS = "operatinghours";
     public final static String CHANNEL_RESET = "reset";
     public final static String CHANNEL_ROLLERSHUTTER = "rollershutter";
@@ -65,6 +66,7 @@ public class KNXBindingConstants {
     public final static String DPT = "dpt";
     public final static String ENABLE_DISCOVERY = "enableDiscovery";
     public final static String ENERGY_GA = "energyGA";
+    public final static String GROUPADDRESS = "groupaddress";
     public final static String INCREASE_DECREASE_ADDRESS = "increasedecreaseGA";
     public final static String INCREASE_DECREASE_DPT = "increasedecreaseDPT";
     public final static String INCREASE_DECREASE_GA = "increaseDecreaseGA";
@@ -89,6 +91,7 @@ public class KNXBindingConstants {
     public final static String STOP_MOVE_GA = "stopMoveGA";
     public final static String STOP_MOVE_STATUS_GA = "stopMoveStatusGA";
     public final static String SWITCH_GA = "switchGA";
+    public final static String UNIT = "unit";
     public final static String UP_DOWN_GA = "upDownGA";
     public final static String UP_DOWN_STATUS_GA = "upDownStatusGA";
 }

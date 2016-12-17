@@ -10,6 +10,7 @@ package org.openhab.binding.knx.internal.channel;
 
 import static org.openhab.binding.knx.KNXBindingConstants.*;
 
+import java.math.BigDecimal;
 import java.util.Objects;
 import java.util.Set;
 
@@ -60,7 +61,14 @@ public class KNXChannelSelectorProxy {
             @Override
             public String getDPT(GroupAddress groupAddress, KNXChannelSelectorProxy proxy, Configuration configuration,
                     Type type) {
-                return "13.001";
+                String unit = (String) configuration.get(UNIT);
+                switch (unit) {
+                    case "Wh":
+                        return "13.010";
+                    case "kWh":
+                        return "13.013";
+                }
+                return null;
             }
 
             @Override
@@ -285,6 +293,29 @@ public class KNXChannelSelectorProxy {
             public Set<GroupAddress> getWriteAddresses(KNXChannelSelectorProxy proxy, Configuration configuration,
                     Type type) throws KNXFormatException {
                 return Sets.filter(Sets.newHashSet(getAddress(configuration, SETPOINT_GA)), Predicates.notNull());
+            }
+        },
+        GENERIC(CHANNEL_GENERIC) {
+            @Override
+            public String getDPT(GroupAddress groupAddress, KNXChannelSelectorProxy proxy, Configuration configuration,
+                    Type type) {
+                return (String) configuration.get(DPT);
+            }
+
+            @Override
+            public Set<GroupAddress> getReadAddresses(KNXChannelSelectorProxy proxy, Configuration configuration,
+                    Type type) throws KNXFormatException {
+                if ((boolean) configuration.get(READ) || (((BigDecimal) configuration.get(INTERVAL)).intValue() > 0)) {
+                    return Sets.filter(Sets.newHashSet(getAddress(configuration, GROUPADDRESS)), Predicates.notNull());
+                }
+
+                return Sets.newHashSet();
+            }
+
+            @Override
+            public Set<GroupAddress> getWriteAddresses(KNXChannelSelectorProxy proxy, Configuration configuration,
+                    Type type) throws KNXFormatException {
+                return Sets.filter(Sets.newHashSet(getAddress(configuration, GROUPADDRESS)), Predicates.notNull());
             }
         };
 

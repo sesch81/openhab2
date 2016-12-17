@@ -63,13 +63,20 @@
         <item-type>Number</item-type>
         <label>Energy</label>
         <description>A channel representing an energy consumption readout</description>
+        <category>Energy</category>
           <config-description>
             <parameter name="energyGA" type="text">
                 <label>Address</label>
                 <description>The group address in x/y/z notation to read the energy consumption</description>
                 <required>true</required>
             </parameter>
-            <parameter name="read" type="boolean">
+            <parameter name="unit" type="text">
+                <label>Unit</label>
+                <description>Unit used to denote the energy consumption (Wh or kWh)</description>
+                <required>false</required>
+                <default>Wh</default>
+            </parameter>
+                <parameter name="read" type="boolean">
                 <label>Read</label>
                 <description>Flag to indicate if the energy group address should be read at startup</description>
                 <required>false</required>
@@ -272,6 +279,42 @@
             <parameter name="statusGA" type="text">
                 <label>Address</label>
                 <description>The group address in x/y/z notation to read the current thermostat setpoint</description>
+                <required>true</required>
+            </parameter>
+            <parameter name="read" type="boolean">
+                <label>Read</label>
+                <description>Flag to indicate if the status group address should be read at startup</description>
+                <required>false</required>
+                <default>false</default>
+            </parameter>
+            <parameter name="interval" type="integer">
+                <label>Interval</label>
+                <description>Interval between attempts to read the status group address on the bus, in seconds</description>
+                <required>false</required>
+                <default>0</default>
+            </parameter>
+            <parameter name="autoupdate" type="boolean">
+                <label>Auto Update</label>
+                <description>Flag to indicate whether the channel must updated after a state is updated or a command is posted </description>
+                <required>false</required>
+                <default>true</default>
+            </parameter>
+        </config-description>
+    </channel-type>
+    
+    <channel-type id="generic">
+        <item-type>Number</item-type>
+        <label>Generic</label>
+        <description>A channel to manage a generic Group Addresses with a DPT</description>
+        <config-description>
+            <parameter name="groupaddress" type="text">
+                <label>Address</label>
+                <description>The group address in x/y/z notation</description>
+                <required>true</required>
+            </parameter>
+            <parameter name="dpt" type="text">
+                <label>DPT</label>
+                <description>The DPT in "x.y" notation</description>
                 <required>true</required>
             </parameter>
             <parameter name="read" type="boolean">

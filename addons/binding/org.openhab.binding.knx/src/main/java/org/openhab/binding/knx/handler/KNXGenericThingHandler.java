@@ -159,12 +159,16 @@ public class KNXGenericThingHandler extends BaseThingHandler
             }
         }
 
+        ((KNXBridgeBaseThingHandler) getBridge().getHandler()).registerGroupAddressListener(this);
+
         scheduleReadJobs();
     }
 
     @Override
     public void dispose() {
         cancelReadFutures();
+
+        ((KNXBridgeBaseThingHandler) getBridge().getHandler()).unregisterGroupAddressListener(this);
 
         if (pollingJob != null && !pollingJob.isCancelled()) {
             pollingJob.cancel(true);
@@ -219,6 +223,9 @@ public class KNXGenericThingHandler extends BaseThingHandler
     }
 
     private void scheduleReadJobs() {
+
+        cancelReadFutures();
+
         for (Channel channel : getThing().getChannels()) {
             Configuration channelConfiguration = channel.getConfiguration();
             Boolean mustRead = (Boolean) channelConfiguration.get(READ);
